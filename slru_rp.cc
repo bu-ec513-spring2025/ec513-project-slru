@@ -96,9 +96,7 @@ SLRU::getVictim(const ReplacementCandidates& candidates) const
     assert(!candidates.empty());
 
     ReplaceableEntry* oldestProb = nullptr;
-    ReplaceableEntry* oldestProt = nullptr;
     Tick minProb = std::numeric_limits<Tick>::max();
-    Tick minProt = std::numeric_limits<Tick>::max();
 
     for (auto *ent : candidates) {
         auto data = std::static_pointer_cast<SLRUReplData>(
@@ -109,33 +107,12 @@ SLRU::getVictim(const ReplacementCandidates& candidates) const
                 minProb      = data->lastTouch;
                 oldestProb   = ent;
             }
-        } else { 
-            if (data->lastTouch < minProt) {
-                minProt      = data->lastTouch;
-                oldestProt   = ent;
-            }
         }
     }
+    // We must have at least one probationary block to evict
+    assert(oldestProb && "No probationary entries available");
+    return oldestProb;
 
-    if (oldestProb) {
-        return oldestProb;
-    }
-
-    assert(oldestProt);
-    auto demoteData = std::static_pointer_cast<SLRUReplData>(
-        oldestProt->replacementData);
-    demoteData->segment   = SLRUReplData::Probation;
-    demoteData->lastTouch = curTick();
-
-    // Remove from protected list
-    auto it = std::find(protectedList.begin(), protectedList.end(), 
-                       oldestProt->replacementData);
-    if (it != protectedList.end()) {
-        protectedList.erase(it);
-        protectedEntries--;
-    }
-
-    return oldestProt;
 }
 
 std::shared_ptr<ReplacementData>
