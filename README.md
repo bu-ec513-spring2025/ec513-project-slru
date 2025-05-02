@@ -97,7 +97,7 @@ class SLRU : public Base {
 2. Place `RubyCache.py` under `/src/mem/ruby/structures/`.
 3. Place `slru_rp.hh` and `slru_rp.cc` under `/src/mem/cache/replacement_policies/`.
 
-## Modifications to Existing Files
+### Modifications to Existing Files
 
 - **SConscript**: Added `slru_rp.cc` to the source list and appended `SLRURP` to the policy registry, ensuring the new code is built and linked with gem5.  
 - **ReplacementPolicies.py**: Introduced the `SLRURP` class with `protected_size` and `probation_size` parameters for Python-based simulation configuration.  
